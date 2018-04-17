@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <limits>
+#include <climits>
 #include <queue>
 #include <map>
 
@@ -211,8 +212,45 @@ void Database::BuildMemberGraph() {
 }
 
 double Database::BestGroupsToJoin(Member *root) {
-  // Fill in your code here
-  return 0;
+  for(auto m : members){
+    m->parent=NULL;
+    m->color = COLOR_WHITE;
+    m->key = INT_MAX*0.5;
+  }
+  root->key = 0;
+  std::vector<Member *> v;
+  
+  for(auto m : members){
+    v.push_back(m);
+  }
+  
+  Member *m;
+  int k, min;
+  
+  while(!v.empty()){
+    min = INT_MAX;
+    for(unsigned int i=0; i<v.size(); i++){
+      if(min > v[i]->key){
+        min = v[i]->key;
+        m = v[i];
+        k=i;
+      }
+    }
+    v.erase(v.begin()+k);
+    m->color=COLOR_BLACK;
+    for(auto c_m : m->connecting_members){
+      Member *u = c_m.second.dst;
+      if((u->color != COLOR_BLACK) && c_m.second.GetWeight() < u->key){
+        u->parent = m;
+        u->key = c_m.second.GetWeight();
+      }
+    }
+  }
+  double total = 0;
+  for(auto mem : members){
+    total += mem->key;
+  }
+  return total;
 }
 
 }

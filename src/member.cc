@@ -1,4 +1,5 @@
 #include "member.h"
+#include <climits>
 
 #include <queue>
 
@@ -43,7 +44,30 @@ void Member::PathToMemberBFS(uint64_t dst_member_id) {
 }
 
 void Member::PathToMemberIDDFS(uint64_t dst_member_id) {
-  // Fill in your code here
+  for(int d = 0; d < INT_MAX; d++){
+    Member *f = DLS(this, d, dst_member_id);
+    if(f!=NULL){
+      PrintPath(f);
+      return;
+    }
+  }
+}
+
+Member *Member::DLS(Member *m, int d, uint64_t dst_member_id){
+  if(d==0 && m->member_id == dst_member_id){
+    return m;
+  }
+  if(d>0){
+    for(auto c : m->connecting_members){
+      auto m_c = c.second;
+      auto f = DLS(m_c.dst, d-1, dst_member_id);
+      if(f!=NULL){
+        m_c.dst->parent=m;
+        return f;
+      }
+    }
+  }
+  return NULL;
 }
   
 void Member::PrintPath(Member* dst) {
